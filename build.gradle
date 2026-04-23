@@ -46,8 +46,32 @@ dependencies {
 	// Tests
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-junit-jupiter'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// Exclude integration tests (those with @SpringBootTest) from unit test phase
+	exclude '**/*ApplicationTests.class'
+}
+
+// Integration tests task
+tasks.register('integrationTest', Test) {
+	description = 'Runs integration tests.'
+	group = 'verification'
+
+	useJUnitPlatform()
+	include '**/*ApplicationTests.class'
+
+	// Run after unit tests
+	shouldRunAfter tasks.test
+}
+
+// Make check task run both unit and integration tests
+tasks.check {
+	dependsOn tasks.integrationTest
 }
