@@ -1,0 +1,53 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.4'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Spring Boot Web
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Spring Data JPA
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// MySQL Driver
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// H2 Database (for development/testing)
+	runtimeOnly 'com.h2database:h2'
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// Validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Spring Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly  'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly  'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// Tests
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
