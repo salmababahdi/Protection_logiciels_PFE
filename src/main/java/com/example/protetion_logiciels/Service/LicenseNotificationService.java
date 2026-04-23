@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,10 +25,12 @@ public class LicenseNotificationService {
     private final LicenceRepository licenceRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final TransactionTemplate transactionTemplate;
 
     /**
      * Check for expired licenses and create notifications
      */
+    @Transactional
     public void checkAndNotifyExpiredLicenses() {
         LocalDate today = LocalDate.now();
         List<Licence> expiredLicences = licenceRepository.findAll().stream()
@@ -63,6 +68,7 @@ public class LicenseNotificationService {
     /**
      * Check for licenses expiring soon (within 7 days) and create notifications
      */
+    @Transactional
     public void checkAndNotifyExpiringSoonLicenses() {
         LocalDate today = LocalDate.now();
         LocalDate nextWeek = today.plusDays(7);
@@ -139,7 +145,12 @@ public class LicenseNotificationService {
     @PostConstruct
     public void init() {
         log.info("License notification service initialized - will check for expired licenses");
-        checkAndNotifyExpiredLicenses();
-        checkAndNotifyExpiringSoonLicenses();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                checkAndNotifyExpiredLicenses();
+                checkAndNotifyExpiringSoonLicenses();
+            }
+        });
     }
 }
